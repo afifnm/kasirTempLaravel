@@ -15,11 +15,11 @@
                 <!-- BEGIN: Login Info -->
                 <div class="hidden xl:flex flex-col min-h-screen">
                     <a href="" class="-intro-x flex items-center pt-5">
-                        <img alt="Midone Tailwind HTML Admin Template" class="w-6" src="{{ asset('midone') }}/dist/images/logo.svg">
+                        <img class="w-6" src="{{ asset('midone') }}/dist/images/logo.svg">
                         <span class="text-white text-lg ml-3"> Kasir<span class="font-medium">App</span> </span>
                     </a>
                     <div class="my-auto">
-                        <img alt="Midone Tailwind HTML Admin Template" class="-intro-x w-1/2 -mt-16" src="{{ asset('midone') }}/dist/images/illustration.svg">
+                        <img class="-intro-x w-1/2 -mt-16" src="{{ asset('midone') }}/dist/images/illustration.svg">
                         <div class="-intro-x text-white font-medium text-4xl leading-tight mt-10">
                             Welcome to App Kasir
                         </div>
@@ -32,13 +32,16 @@
                         <h2 class="intro-x font-bold text-2xl xl:text-3xl text-center xl:text-left">
                             Sign In
                         </h2>
-                        <div class="intro-x mt-8">
-                            <input type="text" class="intro-x login__input input input--lg border border-gray-300 block" placeholder="Email">
-                            <input type="password" class="intro-x login__input input input--lg border border-gray-300 block mt-4" placeholder="Password">
-                        </div>
-                        <div class="intro-x mt-5 xl:mt-8 text-center xl:text-left">
-                            <button class="button button--lg w-full xl:w-32 text-white bg-theme-1 xl:mr-3">Login</button>
-                        </div>
+                        <form action="{{ route('login') }}" method="post">
+                            @csrf
+                            <div class="intro-x mt-8">
+                                <input type="email" name="email" class="intro-x login__input input input--lg border border-gray-300 block" placeholder="Email">
+                                <input type="password" name="password" class="intro-x login__input input input--lg border border-gray-300 block mt-4" placeholder="Password">
+                            </div>
+                            <div class="intro-x mt-5 xl:mt-8 text-center xl:text-left">
+                                <button type="submit" class="button button--lg w-full xl:w-32 text-white bg-theme-1 xl:mr-3">Login</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
                 <!-- END: Login Form -->
@@ -46,6 +49,17 @@
         </div>
         <!-- BEGIN: JS Assets-->
         <script src="{{ asset('midone/dist/js/app.js') }}"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        @if(session('alert'))
+        <script>
+            Swal.fire({
+                title: 'Information!',
+                text: '{{ session('alert') }}',
+                icon: '{{ session('icon') }}',
+                confirmButtonText: 'OK'
+            });
+        </script>
+        @endif
         <!-- END: JS Assets-->
     </body>
 </html>

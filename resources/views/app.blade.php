@@ -29,15 +29,18 @@
                     <div class="dropdown-box mt-10 absolute w-56 top-0 right-0 z-20">
                         <div class="dropdown-box__content box bg-theme-38 text-white">
                             <div class="p-4 border-b border-theme-40">
-                                <div class="font-medium">Angelina Jolie</div>
-                                <div class="text-xs text-theme-41">DevOps Engineer</div>
+                                <div class="font-medium">{{ Auth::user()->name }}</div>
+                                <div class="text-xs text-theme-41">{{ Auth::user()->email }}</div>
                             </div>
                             <div class="p-2">
                                 <a href="" class="flex items-center block p-2 transition duration-300 ease-in-out hover:bg-theme-1 rounded-md"> <i data-feather="user" class="w-4 h-4 mr-2"></i> Profile </a>
                                 <a href="" class="flex items-center block p-2 transition duration-300 ease-in-out hover:bg-theme-1 rounded-md"> <i data-feather="lock" class="w-4 h-4 mr-2"></i> Reset Password </a>
                             </div>
                             <div class="p-2 border-t border-theme-40">
-                                <a href="" class="flex items-center block p-2 transition duration-300 ease-in-out hover:bg-theme-1 rounded-md"> <i data-feather="toggle-right" class="w-4 h-4 mr-2"></i> Logout </a>
+                                <form action="{{ route('logout') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="flex items-center block p-2 transition duration-300 ease-in-out hover:bg-theme-1 rounded-md"> <i data-feather="toggle-right" class="w-4 h-4 mr-2"></i> Logout </button>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -62,7 +65,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="" class="top-menu">
+                    <a href="{{ route('product') }}" class="top-menu top-menu--{{ Request::is('product') ? 'active' : '' }}">
                         <div class="top-menu__icon"> <i data-feather="package"></i> </div>
                         <div class="top-menu__title"> Product </div>
                     </a>

@@ -1,5 +1,5 @@
 @extends('app')
 @section('title','Dashboard')
 @section('content')
-    {{ $title }}
+    {{ Auth::user()->email }}
 @endsection
