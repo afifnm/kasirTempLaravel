@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\Temp;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
 class TransactionController extends Controller
@@ -34,10 +35,15 @@ class TransactionController extends Controller
         $cek = Temp::where('user_id', Auth::id())
                 ->where('product_id', $request->product_id)->first();
         if ($cek) {
-            // Jika sudah ada, tambahkan 1 ke qty
-            $cek->qty += 1;
-            $cek->save();
-            return response()->json(['message' => 'The number of products in the cart has been increased']);
+            // Jika jumlah di temp + 1 lebih dari stok produk
+            if ($cek->qty + 1 > $product->stock) {
+                return response()->json(['message' => 'The number of products exceeds stock'], 400);
+            } else {
+                // Jika stok mencukupi, tambahkan qty
+                $cek->qty += 1;
+                $cek->save();
+                return response()->json(['message' => 'Product quantity updated successfully']);
+            }
         } else {
             Temp::create([
                 'user_id' => Auth::id(),  // Ambil user_id yang sedang login
@@ -101,5 +107,20 @@ class TransactionController extends Controller
             $cartItem->delete();
             return redirect()->route('transaction.sell')->with('success', 'Product successfully removed from cart.');
         }    
+    }
+    public function pay(Request $request){
+        $moveToDetails = Temp::where('user_id', Auth::id())->get();
+        foreach ($moveToDetails as $item) {
+            $data = [
+                'invoice'    => $request->invoice,
+                'product_id' => $item->product_id,
+                'qty'        => $item->qty,
+                'price'      => $item->price,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+            DB::table('details')->insert($data);
+        }
+        Temp::where('user_id', Auth::id())->delete();
     }
 }

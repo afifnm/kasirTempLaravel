@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('invoice',50)->unique();
             $table->date('date');
             $table->float('bill');
+            $table->float('paid');
             $table->timestamps();
         });
     }

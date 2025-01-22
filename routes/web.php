@@ -35,6 +35,7 @@ Route::middleware(['auth'])->group(function (){
     Route::get('/transaction/sell',[TransactionController::class, 'sell'])->name('transaction.sell');
     Route::post('/transaction/addcart', [TransactionController::class, 'addcart'])->name('transaction.addcart');
     Route::post('/transaction/addcartBarcode', [TransactionController::class, 'addcartBarcode'])->name('transaction.addcartBarcode');
+    Route::post('/transaction/pay', [TransactionController::class, 'pay'])->name('transaction.pay');
     Route::get('/cart-list', [TransactionController::class, 'cartList'])->name('cart.list');
     Route::put('/transaction/cart-update', [TransactionController::class, 'cartUpdate'])->name('cart.update');
     Route::delete('/transaction/cart-delete/{id}', [TransactionController::class, 'cartDelete'])->name('cart.delete');

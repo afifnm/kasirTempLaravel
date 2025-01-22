@@ -50,28 +50,60 @@
             @endphp
         @endforeach
         <tr>
-            <td colspan="5" class="border-b whitespace-no-wrap">Total Harga</td>
+            <td colspan="5" class="border-b whitespace-no-wrap">-</td>
             <td class="border-b whitespace-no-wrap text-right">Rp. {{ number_format($total) }}</td>
             <td class="border-b whitespace-no-wrap">-</td>
         </tr>
     </tbody>
 </table>
 
-<form action="" method="post" id="form_pembayaran" enctype="multipart/form-data" onsubmit="return validateForm()">
+<form action="{{ route('transaction.pay') }}" method="post" id="form_pembayaran" enctype="multipart/form-data">
     @csrf
     <div class="mt-3 pr-10 pl-10">
-        <input type="number" class="input w-full border mt-2 text-xl" placeholder="Uang yang dibayar" min="1" required name="bayar" id="bayar" onkeyup="total()">
-    </div>
-    <div class="mt-1 pr-10 pl-10" id="bukti_transfer_container" style="display: none;">
-        <label for="bukti" class="input border text-xl" id="bukti_label">Masukan bukti transfer</label>
-        <input type="file" class="input border text-lg" placeholder="Bukti transfer" name="bukti" id="bukti" accept=".jpeg, .jpg" onchange="updateBuktiLabel(this)">
+        <input 
+            type="number" 
+            class="input w-full border mt-2 text-xl" 
+            placeholder="Uang yang dibayar" 
+            min="1" 
+            required 
+            name="pay" 
+            id="pay" 
+            onkeyup="validatePayment()"
+        >
     </div>
     <div class="mt-3 pr-10 pl-10">
-        <input type="hidden" name="total_harga" value="{{ $total }}" id="total_harga">
-        <h1 class="input w-full border mt-2 text-xl" id="sisa"> Rp. 0</h1>
-        <button type="submit" class="button w-32 mr-2 mb-2 mt-5 flex items-center justify-center bg-theme-1 text-white text-lg w-full" id="bayar_button">
-            <i data-feather="dollar-sign" class="w-4 h-4 mr-2"></i> Bayar
+        <input type="hidden" name="bill" value="{{ $total }}" id="bill">
+        <input type="hidden" name="invoice" value="{{ $invoice }}">
+        <h1 class="input w-full border mt-2 text-xl" id="sisa">Rp. 0</h1>
+        <button 
+            type="submit" 
+            class="button w-32 mr-2 mb-2 mt-5 flex items-center justify-center bg-theme-1 text-white text-lg w-full" 
+            id="pay_button" 
+            disabled
+        >
+            <i data-feather="dollar-sign" class="w-4 h-4 mr-2"></i> Pay
         </button>
     </div>
 </form>
+
+<script>
+    function validatePayment() {
+        var pay = parseInt(document.getElementById('pay').value) || 0;
+        var totalHarga = parseInt(document.getElementById('bill').value) || 0;
+        var sisa = pay - totalHarga;
+
+        // Tampilkan sisa pempayan
+        document.getElementById('sisa').innerText = "Rp. " + sisa.toLocaleString('id-ID');
+
+        // Cek apakah jumlah pay cukup, jika kurang tombol dinonaktifkan
+        var payButton = document.getElementById('pay_button');
+        if (sisa >= 0) {
+            payButton.removeAttribute('disabled');
+        } else {
+            payButton.setAttribute('disabled', 'disabled');
+        }
+    }
+</script>
+
+
 @endif
