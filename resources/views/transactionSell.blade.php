@@ -7,151 +7,141 @@
         <div class="intro-y box">
             <div class="flex flex-col sm:flex-row items-center p-5 border-b border-gray-200">
                 <h2 class="font-medium text-base mr-auto">
-                    Pilih produk terlebih dahulu
+                    Select product to cart
                 </h2>
             </div>
             <div class="p-5">
-                <form id="keranjangForm" action="{{ route('admin.penjualan.addtemp2') }}" method="post">
+                <form id="keranjangForm" action="" method="post">
                     @csrf
-                    <input type="hidden" name="kode_penjualan" value="{{ $nota }}">
+                    <input type="hidden" name="kode_penjualan" value="">
                     <div class="preview">
                         <div class="mt-1">
-                            <input type="hidden" name="id_pelanggan" value="{{ $id_pelanggan }}">
-                            <label>Pelanggan</label>
-                            <input type="text" class="input w-full border mt-2 bg-gray-100" value="{{ \App\Models\Pelanggan::find($id_pelanggan)->nama }}" disabled>
-                        </div>
-                        <div class="mt-1">
-                            <label>Nomor Nota</label>
-                            <input type="text" class="input w-full border mt-2 bg-gray-100" value="#{{ $nota }}" disabled>
+                            <label>Invoice</label>
+                            <input type="text" class="input w-full border mt-2 bg-gray-100" value="#{{ $invoice }}" disabled>
                         </div>
                         <div class="mt-5">
-                            <label>Produk</label>
-                            <select class="select2 w-full border mt-2 bg-gray-100" name="kode_produk2" id="produk" onchange="submitForm()">
-                                <option value="">Pilih Produk</option>
-                                @foreach($produk as $aa)
-                                    <option value="{{ $aa['kode_produk'] }}" data-stok="{{ $aa['stok'] }}">
-                                        {{ $aa['nama'] }} - ({{ $aa['stok'] }})
+                            <label>Product</label>
+                            <select class="select2 w-full border mt-2 bg-gray-100" name="barcode2" id="product">
+                                <option value="">Select Product</option>
+                                @foreach($products as $aa)
+                                    <option data-id="{{ $aa['id'] }}">
+                                        {{ $aa['name'] }} - ({{ $aa['stock'] }})
                                     </option>
                                 @endforeach
                             </select>
                         </div>
+                        <!-- Tambahkan CSRF Token -->
+                        <meta name="csrf-token" content="{{ csrf_token() }}">
                         <div class="mt-5">
-                            <label>Masukkan Barcode Produk</label>
-                            <input type="text" class="input w-full border mt-2 bg-gray-100" name="kode_produk" id="barcode_produk" autofocus>
-                        </div>
+                            <label>Scan Barcode</label>
+                            <input type="text" class="input w-full border mt-2 bg-gray-100" name="barcode" id="barcode" autofocus>
+                        </div>                        
                     </div>
                 </form>
+                <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
                 <script>
-                    document.getElementById('barcode_produk').addEventListener('keydown', function(event) {
-                        if (event.key === 'Enter') {
-                            event.preventDefault();
-                            document.getElementById('keranjangForm').submit();
+                                        // Event listener untuk input barcode
+                                        $('#barcode').keypress(function(e) {
+                        // Mengecek apakah tombol yang ditekan adalah Enter (kode 13)
+                        if (e.which == 13) {
+                            var barcode = $(this).val(); // Ambil nilai barcode yang dimasukkan
+                            
+                            if (barcode) {
+                                $.ajax({
+                                    url: "{{ route('transaction.addcartBarcode') }}", // Ganti dengan route yang sesuai untuk menambah ke keranjang
+                                    method: "POST",
+                                    data: {
+                                        _token: "{{ csrf_token() }}",
+                                        barcode: barcode
+                                    },
+                                    success: function(response) {
+                                        // Menampilkan pesan sukses menggunakan SweetAlert2
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: 'Produk berhasil ditambahkan',
+                                            text: response.message,
+                                            confirmButtonText: 'OK'
+                                        });
+                                        loadCart(); // Memuat ulang tabel keranjang tanpa refresh
+                                        $('#barcode').val(''); // Kosongkan input setelah submit
+                                    },
+                                    error: function(xhr) {
+                                        // Menampilkan error jika gagal
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Gagal menambahkan produk',
+                                            text: 'Terjadi kesalahan, coba lagi nanti.',
+                                            confirmButtonText: 'OK'
+                                        });
+                                    }
+                                });
+                            } else {
+                                // Jika barcode kosong
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: 'Barcode tidak valid',
+                                    text: 'Silakan masukkan barcode yang valid.',
+                                    confirmButtonText: 'OK'
+                                });
+                            }
                         }
                     });
-                    function submitForm() {
-                        var produk = document.getElementById('produk').value;
-                        if (produk) {
-                            document.getElementById('keranjangForm').submit();
-                        }
+                    $(document).ready(function() {
+                        $('#product').change(function() {
+                            var productId = $(this).find(':selected').data('id');
+                            if (productId) {
+                                $.ajax({
+                                    url: "{{ route('transaction.addcart') }}", 
+                                    method: "POST",
+                                    data: {
+                                        _token: "{{ csrf_token() }}",
+                                        product_id: productId
+                                    },
+                                    success: function(response) {
+                                        Swal.fire({
+                                            icon: 'success',
+                                            text: response.message,
+                                            confirmButtonText: 'OK'
+                                        });
+                                        loadCart(); // Memuat ulang tabel keranjang tanpa refresh
+                                    },
+                                    error: function(xhr) {
+                                        alert('Gagal menambahkan produk ke keranjang');
+                                    }
+                                });
+                            }
+                        });
+                    });
+                    // Fungsi untuk merefresh tabel keranjang
+                    function loadCart() {
+                        $.ajax({
+                            url: "{{ route('cart.list') }}",
+                            method: "GET",
+                            success: function(data) {
+                                $('#cartTable').html(data);  // Pastikan ID sesuai dengan yang di HTML
+                            },
+                            error: function() {
+                                alert('Gagal memuat keranjang');
+                            }
+                        });
                     }
                 </script>
             </div>
         </div>
         <!-- END: Keranjang -->
     </div>
+
     <div class="intro-y col-span-9">
         <!-- BEGIN: Bayar -->
         <div class="intro-y box">
             <div class="flex flex-col sm:flex-row items-center p-5 border-b border-gray-200">
                 <h2 class="font-medium text-base mr-auto">
-                    Produk yang dipilih
+                    Product selected
                 </h2>
             </div>
             <div class="p-5">
-                <div class="overflow-x-auto">
-                    @if($temp == NULL)
-                        <div class="rounded-md px-5 py-4 mb-2 bg-gray-200 text-gray-600">
-                            Belum ada produk yang dipilih, silahkan pilih produk ke keranjang terlebih dahulu.
-                        </div>
-                    @else
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th class="border-b-2 whitespace-no-wrap">#</th>
-                                    <th class="border-b-2 whitespace-no-wrap">Kode Barang</th>
-                                    <th class="border-b-2 whitespace-no-wrap">Produk</th>
-                                    <th class="border-b-2 whitespace-no-wrap">Jumlah</th>
-                                    <th class="border-b-2 whitespace-no-wrap text-right">Harga</th>
-                                    <th class="border-b-2 whitespace-no-wrap text-right">Total</th>
-                                    <th class="border-b-2 whitespace-no-wrap text-center">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @php
-                                    $total = 0;
-                                    $no = 1;
-                                @endphp
-                                @foreach($temp as $row)
-                                    <tr>
-                                        <td class="border-b whitespace-no-wrap">{{ $no }}</td>
-                                        <td class="border-b whitespace-no-wrap">{{ $row->kode_produk }}</td>
-                                        <td class="border-b whitespace-no-wrap">{{ $row->nama }}</td>
-                                        <td class="border-b whitespace-no-wrap">
-                                            <form action="{{ route('admin.penjualan.update_temp') }}" method="post">
-                                                @csrf
-                                                <input type="hidden" name="id_temp" value="{{ $row->id_temp }}">
-                                                <input type="hidden" name="kode_produk" value="{{ $row->kode_produk }}">
-                                                <input type="number" name="jumlah" value="{{ $row->jumlah }}" min="1" class="input w-20 border" onchange="this.form.submit()">
-                                            </form>
-                                        </td>
-                                        <td class="border-b whitespace-no-wrap text-right">Rp. {{ number_format($row->harga) }}</td>
-                                        <td class="border-b whitespace-no-wrap text-right">Rp. {{ number_format($row->jumlah * $row->harga) }}</td>
-                                        <td class="border-b whitespace-no-wrap">
-                                            <div class="flex sm:justify-center items-center">
-                                                <a onClick="return confirm('Apakah anda yakin menghapus produk dari keranjang?')" href="{{ route('admin.penjualan.hapus_temp', $row->id_temp) }}" class="flex items-center text-theme-6">
-                                                    <i data-feather="trash" class="w-4 h-4 mr-1 ml-2"></i> hapus
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    @php
-                                        $total += $row->jumlah * $row->harga;
-                                        $no++;
-                                    @endphp
-                                @endforeach
-                                <tr>
-                                    <td colspan="5" class="border-b whitespace-no-wrap">Total Harga</td>
-                                    <td class="border-b whitespace-no-wrap text-right">Rp. {{ number_format($total) }}</td>
-                                    <td class="border-b whitespace-no-wrap">-</td>
-                                </tr>
-                            </tbody>
-                        </table>
-    
-                        <form action="{{ route('admin.penjualan.bayarv2') }}" method="post" id="form_pembayaran" enctype="multipart/form-data" onsubmit="return validateForm()">
-                            @csrf
-                            <div class="mt-3 pr-10 pl-10">
-                                <input type="number" class="input w-full border mt-2 text-xl" placeholder="Uang yang dibayar" min="1" required name="bayar" id="bayar" onkeyup="total()">
-                            </div>
-                            <div class="mt-3 pr-10 pl-10">
-                                <select name="pembayaran" class="input w-full border mt-2 text-xl" id="metode_pembayaran" onchange="toggleBuktiInput()">
-                                    <option value="Tunai">Tunai (Cash)</option>
-                                    <option value="Transfer">Transfer</option>
-                                </select>
-                            </div>
-                            <div class="mt-1 pr-10 pl-10" id="bukti_transfer_container" style="display: none;">
-                                <label for="bukti" class="input border text-xl" id="bukti_label">Masukan bukti transfer</label>
-                                <input type="file" class="input border text-lg" placeholder="Bukti transfer" name="bukti" id="bukti" accept=".jpeg, .jpg" onchange="updateBuktiLabel(this)">
-                            </div>
-                            <div class="mt-3 pr-10 pl-10">
-                                <input type="hidden" name="id_pelanggan" value="{{ $id_pelanggan }}">
-                                <input type="hidden" name="total_harga" value="{{ $total }}" id="total_harga">
-                                <h1 class="input w-full border mt-2 text-xl" id="sisa"> Rp. 0</h1>
-                                <button type="submit" class="button w-32 mr-2 mb-2 mt-5 flex items-center justify-center bg-theme-1 text-white text-lg w-full" id="bayar_button">
-                                    <i data-feather="dollar-sign" class="w-4 h-4 mr-2"></i> Bayar
-                                </button>
-                            </div>
-                        </form>
-                    @endif
+                <div id="cartTable">
+                    @include('partials.cart')
                 </div>
             </div>
         </div>

@@ -33,4 +33,12 @@ Route::middleware(['auth'])->group(function (){
     //Transaction Page
     Route::get('/transaction',[TransactionController::class, 'index'])->name('transaction');
     Route::get('/transaction/sell',[TransactionController::class, 'sell'])->name('transaction.sell');
+    Route::post('/transaction/addcart', [TransactionController::class, 'addcart'])->name('transaction.addcart');
+    Route::post('/transaction/addcartBarcode', [TransactionController::class, 'addcartBarcode'])->name('transaction.addcartBarcode');
+    Route::get('/cart-list', [TransactionController::class, 'cartList'])->name('cart.list');
+    Route::put('/transaction/cart-update', [TransactionController::class, 'cartUpdate'])->name('cart.update');
+    Route::delete('/transaction/cart-delete/{id}', [TransactionController::class, 'cartDelete'])->name('cart.delete');
+    
+    
+
 });
