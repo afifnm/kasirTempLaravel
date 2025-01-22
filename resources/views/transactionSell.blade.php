@@ -40,8 +40,8 @@
                 </form>
                 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
                 <script>
-                                        // Event listener untuk input barcode
-                                        $('#barcode').keypress(function(e) {
+                    // Event listener untuk input barcode
+                    $('#barcode').keypress(function(e) {
                         // Mengecek apakah tombol yang ditekan adalah Enter (kode 13)
                         if (e.which == 13) {
                             var barcode = $(this).val(); // Ambil nilai barcode yang dimasukkan

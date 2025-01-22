@@ -71,7 +71,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('transaction') }}" class="top-menu top-menu--{{ Request::is('transaction/*') ? 'active' : '' }}">
+                    <a href="{{ route('transaction') }}" class="top-menu top-menu--{{ Request::is('transaction*') ? 'active' : '' }}">
                         <div class="top-menu__icon"> <i data-feather="book"></i> </div>
                         <div class="top-menu__title"> Transaction </div>
                     </a>
