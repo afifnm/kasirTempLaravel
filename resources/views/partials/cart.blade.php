@@ -34,7 +34,7 @@
                     </form>
                 </td>
                 <td class="border-b whitespace-no-wrap text-right">Rp. {{ number_format($row->product->price) }}</td>
-                <td class="border-b whitespace-no-wrap text-right">Rp. {{ number_format($row->qty * $row->price) }}</td>
+                <td class="border-b whitespace-no-wrap text-right">Rp. {{ number_format($row->qty * $row->product->price) }}</td>
                 <td class="border-b whitespace-no-wrap">
                     <div class="flex sm:justify-center items-center">
                         <form action="{{ route('cart.delete', $row->id) }}" method="post">
@@ -46,7 +46,7 @@
                 </td>                               
             </tr>
             @php
-                $total += $row->qty * $row->price;
+                $total += $row->qty * $row->product->price;
             @endphp
         @endforeach
         <tr>
@@ -56,7 +56,6 @@
         </tr>
     </tbody>
 </table>
-
 <form action="{{ route('transaction.pay') }}" method="post" id="form_pembayaran" enctype="multipart/form-data">
     @csrf
     <div class="mt-3 pr-10 pl-10">
@@ -73,7 +72,6 @@
     </div>
     <div class="mt-3 pr-10 pl-10">
         <input type="hidden" name="bill" value="{{ $total }}" id="bill">
-        <input type="hidden" name="invoice" value="{{ $invoice }}">
         <h1 class="input w-full border mt-2 text-xl" id="sisa">Rp. 0</h1>
         <button 
             type="submit" 
@@ -91,11 +89,7 @@
         var pay = parseInt(document.getElementById('pay').value) || 0;
         var totalHarga = parseInt(document.getElementById('bill').value) || 0;
         var sisa = pay - totalHarga;
-
-        // Tampilkan sisa pempayan
         document.getElementById('sisa').innerText = "Rp. " + sisa.toLocaleString('id-ID');
-
-        // Cek apakah jumlah pay cukup, jika kurang tombol dinonaktifkan
         var payButton = document.getElementById('pay_button');
         if (sisa >= 0) {
             payButton.removeAttribute('disabled');
@@ -104,6 +98,4 @@
         }
     }
 </script>
-
-
 @endif

@@ -41,11 +41,9 @@
                 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
                 <script>
                     // Event listener untuk input barcode
-                    $('#barcode').keypress(function(e) {
-                        // Mengecek apakah tombol yang ditekan adalah Enter (kode 13)
+                    $('#barcode').keypress(function(e) { // Mengecek apakah tombol yang ditekan adalah Enter (kode 13)
                         if (e.which == 13) {
                             var barcode = $(this).val(); // Ambil nilai barcode yang dimasukkan
-                            
                             if (barcode) {
                                 $.ajax({
                                     url: "{{ route('transaction.addcartBarcode') }}", // Ganti dengan route yang sesuai untuk menambah ke keranjang
@@ -58,7 +56,7 @@
                                         // Menampilkan pesan sukses menggunakan SweetAlert2
                                         Swal.fire({
                                             icon: 'success',
-                                            title: 'Produk berhasil ditambahkan',
+                                            title: 'Product added successfully',
                                             text: response.message,
                                             confirmButtonText: 'OK'
                                         });
@@ -69,8 +67,8 @@
                                         // Menampilkan error jika gagal
                                         Swal.fire({
                                             icon: 'error',
-                                            title: 'Gagal menambahkan produk',
-                                            text: 'Terjadi kesalahan, coba lagi nanti.',
+                                            title: 'Failed to add product',
+                                            text: 'An error occurred, try again.',
                                             confirmButtonText: 'OK'
                                         });
                                     }
@@ -79,8 +77,8 @@
                                 // Jika barcode kosong
                                 Swal.fire({
                                     icon: 'warning',
-                                    title: 'Barcode tidak valid',
-                                    text: 'Silakan masukkan barcode yang valid.',
+                                    title: 'Invalid barcode',
+                                    text: 'Please enter a valid barcode.',
                                     confirmButtonText: 'OK'
                                 });
                             }
@@ -98,15 +96,15 @@
                                         product_id: productId
                                     },
                                     success: function(response) {
-                                        Swal.fire({
-                                            icon: 'success',
-                                            text: response.message,
-                                            confirmButtonText: 'OK'
-                                        });
                                         loadCart(); // Memuat ulang tabel keranjang tanpa refresh
                                     },
                                     error: function(xhr) {
-                                        alert('Gagal menambahkan produk ke keranjang');
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Failed to add product',
+                                            text: 'An error occurred, try again.',
+                                            confirmButtonText: 'OK'
+                                        });
                                     }
                                 });
                             }
@@ -118,10 +116,19 @@
                             url: "{{ route('cart.list') }}",
                             method: "GET",
                             success: function(data) {
-                                $('#cartTable').html(data);  // Pastikan ID sesuai dengan yang di HTML
+                                $('#cartTable').html(data);
                             },
-                            error: function() {
-                                alert('Gagal memuat keranjang');
+                            error: function(xhr, status, error) {
+                                console.error("XHR Response:", xhr.responseText);
+                                console.error("Status:", status);
+                                console.error("Error:", error);
+
+                                Swal.fire({
+                                    title: 'Terjadi Kesalahan',
+                                    text: `Error ${xhr.status}: ${xhr.statusText}`,
+                                    icon: 'error',
+                                    confirmButtonText: 'OK'
+                                });
                             }
                         });
                     }

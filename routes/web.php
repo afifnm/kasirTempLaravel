@@ -39,7 +39,7 @@ Route::middleware(['auth'])->group(function (){
     Route::get('/cart-list', [TransactionController::class, 'cartList'])->name('cart.list');
     Route::put('/transaction/cart-update', [TransactionController::class, 'cartUpdate'])->name('cart.update');
     Route::delete('/transaction/cart-delete/{id}', [TransactionController::class, 'cartDelete'])->name('cart.delete');
+    Route::get('/transaction/invoice/{id}',[TransactionController::class, 'invoice'])->name('transaction.invoice');
+    Route::get('/transaction/struk/{id}',[TransactionController::class, 'struk'])->name('transaction.struk');
     
-    
-
 });

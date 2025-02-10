@@ -72,7 +72,22 @@
 			</tr>
 		</thead>
 		<tbody>
-
+			@foreach($transactions as $row)
+				<tr>
+					<td class="text-left border-b"><?= $loop->iteration; ?></td>
+					<td class="text-left border-b"><?= $row->invoice; ?></td>
+					<td class="text-left border-b">{{ \Carbon\Carbon::parse($row->date)->format('d M Y') }}</td>
+					<td class="text-right border-b">Rp. <?= number_format($row->bill); ?></td>
+					<td class="border-b w-5">
+						<div class="flex sm:justify-center items-center">
+							<a href="{{ route('transaction.invoice',$row->invoice) }}"
+								class="flex items-center text-theme-1">
+								<i data-feather="file-minus" class="w-4 h-4 mr-1"></i> Invoice
+							</a>
+						</div>
+					</td>
+				</tr>
+			@endforeach
 		</tbody>
 	</table>
 </div>
